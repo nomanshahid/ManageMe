@@ -1,0 +1,800 @@
+<%= form_for(@kid) do |f| %>
+  <% if @kid.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@kid.errors.count, "error") %> prohibited this kid from being saved:</h2>
+
+      <ul>
+      <% @kid.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+<div class="col-sm-4">
+  <div class="field">
+    <%= f.label :first_name %><br>
+    <%= f.text_field :first_name %>
+  </div>
+  <div class="field">
+    <%= f.label :last_name %><br>
+    <%= f.text_field :last_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :dob, "Date of Birth" %>
+    <%= f.date_field :dob, required: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :gender %>
+    <div class="row">
+      <label class="radio-inline" style="margin-left: 20px;">
+        <%= f.radio_button :gender, "Male" %>Male
+      </label>
+      <label class="radio-inline">
+        <%= f.radio_button :gender, "Female" %>Female
+      </label>
+      <label class="radio-inline">
+        <%= f.radio_button :gender, "Other" %>Other
+      </label>
+
+    </div>
+  </div>
+
+
+  <div class="field">
+    <%= f.label :religion %>
+    <%= f.text_field :religion %>
+  </div>
+
+
+  <div class="field">
+    <%= f.label :admission_date %>
+    <%= f.date_field :admission_date %>
+
+  </div>
+
+
+  <div class="field">
+    <%= f.label :street_addr, "Street Address" %>
+    <%= f.text_field :street_addr %>
+  </div>
+
+  <div class="field">
+    <%= f.label :city %>
+    <%= f.text_field :city %>
+
+  </div>
+
+  <div class="field">
+    <%= f.label :province %>
+    <%= f.select :province, options_for_select(["Alberta", "British Columia", "Manitoba", 
+      "New Brunswick", "Newfoundland", "Nova Scotia", "Northwest Territories", "Nunavut", "Ontario",
+      "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"], f.object.province) %>
+    </div>
+
+    <div class="field">
+      <%= f.label :postal_code  %>
+      <%= f.text_field :postal_code, style: "text-transform: uppercase;" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :phone, "Home Phone" %>
+      <%= f.text_field :phone %>
+    </div>
+
+
+    <div class="field">
+      <%= f.label :student_id, "Student ID" %>
+      <%= f.select :student_id, options_for_select(["CS", "FF"], f.object.student_id) %>
+    </div>
+
+    <div class="field">
+      <%= f.label :student_number, "Student Number" %>
+      <%= f.text_field :student_number %>
+    </div>
+
+
+    <div class="field">
+      <%= f.label :classroom_id, "Class (Age Group)" %>
+      <%= f.select :classroom_id, options_from_collection_for_select(@classrooms, 'id', 'class_name', selected: f.object.classroom_id), include_blank: "N/A" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :ba, "B&A" %>
+      <%= f.check_box :ba %>
+    </div>
+
+    <div class="field">
+      <%= f.label :school_name, "School Name" %>
+      <%= f.text_field :school_name %>
+    </div>
+
+
+    <div class="field">
+      <%= f.label :school_phone, "School Phone" %>
+      <%= f.text_field :school_phone %>
+    </div>
+
+    <div class="field">
+      <%= f.label :bus_route, "Bus Route" %>
+      <%= f.text_field :bus_route %>
+    </div>
+
+    <div class="field">
+      <%= f.label :bus_driver, "Bus Driver" %>
+      <%= f.text_field :bus_driver %>
+    </div>
+
+    <div class="field">
+      <%= f.label :sunscreen %>
+      <%= f.check_box :sunscreen %>
+    </div>
+    <div class="field">
+      <%= f.label :diaper_cream, "Diaper Cream/Ointment" %>
+      <%= f.check_box :diaper_cream %>
+    </div>
+    <div class="field">
+      <%= f.label :hand_sanitizer, "Hand Sanitizer" %>
+      <%= f.check_box :hand_sanitizer %>
+    </div>
+    <div class="field">
+      <%= f.label :face_painting, "Face Painting" %>
+      <%= f.check_box :face_painting %>
+    </div>
+    <div class="field">
+      <%= f.label :vidpic_taking, "Video/Picture Taking" %>
+      <%= f.check_box :vidpic_taking %>
+    </div>
+
+    <div class="field">
+      <%= f.label :notes %>
+      <%= f.text_area :notes, rows: "5", style: "resize: none;" %>
+    </div>
+               
+             </div>
+             <div class="col-sm-4">
+<h4>Parent/Gaurdian #1</h4>
+             <div class="field">
+                      <%= f.label :gaurdian_one_name, "Full Name" %>
+                        <%= f.text_field :gaurdian_one_name  %>
+                    </div>
+                    <div class="field">
+                      <%= f.label :gaurdian_one_relationship, "Relationship" %>
+                        <%= f.text_field :gaurdian_one_relationship %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_home_phone, "Home Phone" %>
+                        <%= f.text_field :gaurdian_one_home_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_mobile_phone, "Mobile Phone" %>
+                        <%= f.text_field :gaurdian_one_mobile_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_bus_phone, "Business Phone"%>
+                        <%= f.text_field :gaurdian_one_bus_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_email, "Email" %>
+                        <%= f.text_field :gaurdian_one_email %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.check_box :gaurdian_one_email_corr %>
+                      <%= f.label :gaurdian_one_email_corr, "Check box to receive correspondence through email" %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_employer, "Employer" %>
+                        <%= f.text_field :gaurdian_one_employer %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_employer_addr, "Employer Address" %>
+                        <%= f.text_field :gaurdian_one_employer_addr %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_one_notes, "Notes" %>
+                        <%= f.text_area :gaurdian_one_notes, rows: "5", style: "resize: none;" %>
+                        </div>
+<h4>Parent/Gaurdian #2</h4>
+                        <div class="field">
+                      <%= f.label :gaurdian_two_name, "Full Name" %>
+                        <%= f.text_field :gaurdian_two_name %>
+                    </div>
+                    <div class="field">
+                      <%= f.label :gaurdian_two_relationship, "Relationship" %>
+                        <%= f.text_field :gaurdian_two_relationship %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_home_phone, "Home Phone" %>
+                        <%= f.text_field :gaurdian_two_home_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_mobile_phone, "Mobile Phone" %>
+                        <%= f.text_field :gaurdian_two_mobile_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_bus_phone, "Business Phone"%>
+                        <%= f.text_field :gaurdian_two_bus_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_email, "Email" %>
+                        <%= f.text_field :gaurdian_two_email %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.check_box :gaurdian_two_email_corr %>
+                      <%= f.label :gaurdian_two_email_corr, "Check box to receive correspondence through email" %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_employer, "Employer" %>
+                        <%= f.text_field :gaurdian_two_employer %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_employer_addr, "Employer Address" %>
+                        <%= f.text_field :gaurdian_two_employer_addr %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :gaurdian_two_notes, "Notes" %>
+                        <%= f.text_area :gaurdian_two_notes, rows: "5", style: "resize: none;" %>
+                        </div>
+
+
+             </div>
+             <div class="col-sm-4">
+<h4>Emergency Contact #1</h4>
+
+<div class="field">
+                      <%= f.label :emerg_contact_one_name, "Name" %>
+                        <%= f.text_field :emerg_contact_one_name %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_one_phone, "Home Phone" %>
+                        <%= f.text_field :emerg_contact_one_phone %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_one_cell, "Cell Phone" %>
+                        <%= f.text_field :emerg_contact_one_cell %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_one_work, "Work Phone" %>
+                        <%= f.text_field :emerg_contact_one_work %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_one_relationship, "Relationship" %>
+                        <%= f.text_field :emerg_contact_one_relationship, rows: "5", style: "resize: none;" %>
+                        </div>
+<h4>Emergency Contact #2</h4>
+<div class="field">
+                      <%= f.label :emerg_contact_two_name, "Name" %>
+                        <%= f.text_field :emerg_contact_two_name %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_two_phone, "Home Phone" %>
+                        <%= f.text_field :emerg_contact_two_phone %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_two_cell, "Cell Phone" %>
+                        <%= f.text_field :emerg_contact_two_cell %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_two_work, "Work Phone" %>
+                        <%= f.text_field :emerg_contact_two_work %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_two_relationship, "Relationship" %>
+                        <%= f.text_field :emerg_contact_two_relationship, rows: "5", style: "resize: none;" %>
+                        </div>
+<h4>Emergency Contact #3</h4>
+                        <div class="field">
+                      <%= f.label :emerg_contact_three_name, "Name" %>
+                        <%= f.text_field :emerg_contact_three_name %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_three_phone, "Home Phone" %>
+                        <%= f.text_field :emerg_contact_three_phone %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_three_cell, "Cell Phone" %>
+                        <%= f.text_field :emerg_contact_three_cell %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_three_work, "Work Phone" %>
+                        <%= f.text_field :emerg_contact_three_work %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :emerg_contact_three_relationship, "Relationship" %>
+                        <%= f.text_field :emerg_contact_three_relationship, rows: "5", style: "resize: none;" %>
+                        </div>
+
+                        <h4>Medical Information</h4>
+
+                    <div class="field">
+                      <%= f.label :physician_name, "Physician Name" %>
+                        <%= f.text_field :physician_name %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :physician_phone, "Phone" %>
+                        <%= f.text_field :physician_phone %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :physician_fax, "Fax" %>
+                        <%= f.text_field :physician_fax  %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :physician_addr, "Address"%>
+                        <%= f.text_field :physician_addr %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :physician_city, "City"  %>
+                        <%= f.text_field :physician_city %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :physician_postal_code, "Postal Code" %>
+                        <%= f.text_field :physician_postal_code %>
+                      </div>
+
+                    <div class="field">
+                      <%= f.label :ohip, "OHIP Number" %>
+                        <%= f.text_field :ohip %>
+                    </div>
+
+                    <div class="field">
+                      <%= f.label :physician_notes, "Notes"%>
+                        <%= f.text_area :physician_notes, rows: "6", style: "resize: none;" %>
+                      </div>
+             </div>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <h4>Allergies</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :allergy_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :allergy_description_one, class: "input-sm form-control" %>
+                          <%= f.label :allergy_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :allergy_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :allergy_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :allergy_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :allergy_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :allergy_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :allergy_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :allergy_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_two, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_two, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_two, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_two, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_two, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_two, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_two, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_two, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_two, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_two, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_two, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_two, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_three, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_three, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_three, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_three, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_three, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_three, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_three, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_three, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_three, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_three, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_three, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_three, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_four, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_four, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_four, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_four, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_four, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_four, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_four, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_four, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_four, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_four, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_four, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_four, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_five, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_five, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_five, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_five, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_five, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_five, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_five, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_five, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_five, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_five, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_five, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_five, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+
+                    <h4>Food Restrictions</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :food_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :food_description_one, class: "input-sm form-control" %>
+                          <%= f.label :food_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :food_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :food_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :food_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :food_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :food_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :food_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :food_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_two, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_two, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_two, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_two, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_two, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_two, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_two, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_two, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_two, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_two, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_two, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_two, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_three, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_three, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_three, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_three, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_three, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_three, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_three, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_three, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_three, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_three, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_three, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_three, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_four, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_four, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_four, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_four, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_four, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_four, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_four, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_four, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_four, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_four, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_four, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_four, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_five, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_five, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_five, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_five, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_five, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_five, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_five, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_five, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_five, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_five, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_five, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_five, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                    <h4>Special Medical Alerts</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :special_med_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :special_med_description_one, class: "input-sm form-control" %>
+                          <%= f.label :special_med_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :special_med_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :special_med_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :special_med_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :special_med_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :special_med_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :special_med_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :special_med_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :special_med_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :special_med_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+                  </div>
+                </div>
+                </div>
+
+                  <h3>Anaphylaxis</h3>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Allergy Information</h4>
+                      <div class="col-sm-3">
+                        <%= f.check_box :nuts, class: "checkbox checkbox-inline" %>
+                        <%= f.label :nuts, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :fish, class: "checkbox checkbox-inline" %>
+                        <%= f.label :fish, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :eggs, class: "checkbox checkbox-inline" %>
+                        <%= f.label :eggs, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :milk, class: "checkbox checkbox-inline" %>
+                        <%= f.label :milk, class: "control-label" %>
+                        <br>    
+                        <%= f.check_box :latex, class: "checkbox checkbox-inline" %>
+                        <%= f.label :latex, class: "control-label" %>                
+                      </div>
+                      <div class="col-sm-3" style="padding-left: 0; padding-right: 0;">
+                        <%= f.check_box :medication, class: "checkbox checkbox-inline", id: "medication-box", onchange: "document.getElementById('medication-text').disabled = !this.checked;" %>
+                        <%= f.label :medication, class: "control-label", style: "margin-bottom: 3px;" %>
+                        <br>
+                        <%= f.check_box :insect_sting, class: "checkbox checkbox-inline", id: "insect-sting-box", onchange: "document.getElementById('insect-sting-text').disabled = !this.checked;" %>
+                        <%= f.label :insect_sting, "Insect Sting", class: "control-label", style: "margin-bottom: 3px;" %>
+                        <br>
+                        <%= f.check_box :asthmatic, class: "checkbox checkbox-inline", id: "asthmatic-box", onchange: "document.getElementById('asthmatic-text').disabled = !this.checked; document.getElementById('asthmatic-expiry').disabled = !this.checked;" %>
+                        <%= f.label :asthmatic, class: "control-label" %>
+                      </div>
+                      <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                        <%= f.text_field :medication_text, class: "input-sm form-control", style: "margin-bottom: 3px;", disabled: true, id: "medication-text" %>
+                        <%= f.text_field :insect_sting_text, class: "input-sm form-control", style: "margin-bottom: 3px;", disabled: true, id: "insect-sting-text" %>   
+                        <%= f.text_field :asthmatic_medication, placeholder: "Medication Description", class: "input-sm form-control", disabled: true, id: "asthmatic-text" %>    
+                      </div>
+                      <div class="col-sm-9" style="padding-left: 0; padding-right: 0;">
+                        <%= f.label :asthmatic_medication_expiry, "Expiry Date", class: "control-label", style: "padding-top: 0;" %>    
+                        <%= f.date_field :asthmatic_medication_expiry, class: "input-sm form-control", disabled: true, id: "asthmatic-expiry" %>
+                      </div>
+                      <div class="col-sm-12" style="padding-left: 0;">
+                        <h4>EpiPen Information</h4>
+                        <div class="form-group">
+                        <%= f.label :epipen_expiry, "Expiry Date", class: "col-sm-4 control-label" %>
+                          <div class="col-sm-8">
+                            <%= f.date_field :epipen_expiry, class: "form-control" %>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <%= f.label :epipen_location, "Location", class: "col-sm-4 control-label" %>
+                          <div class="col-sm-8">
+                            <%= f.text_field :epipen_location, class: "form-control"%>
+                          </div>
+                        </div>
+                        <h4>EpiPen Dosage Information</h4>
+                        <div class="col-sm-6">
+                          <%= f.check_box :epipen_jr_15mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_jr_15mg, "EpiPen Jr 0.15mg", class: "control-label" %>
+                          <br>
+                          <%= f.check_box :epipen_twinject_15mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_twinject_15mg, "Twinject 0.15mg", class: "control-label"%>
+                         </div>
+                        <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                          <%= f.check_box :epipen_30mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_30mg, "EpiPen 0.30mg", class: "control-label" %>
+                          <br>
+                          <%= f.check_box :epipen_twinject_30mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_twinject_30mg, "Twinject 0.30mg", class: "control-label"%>
+                        </div>
+                        <div class="col-sm-4" style="padding-right:0;">
+                          <%= f.check_box :epipen_other_dosage, class: "checkbox checkbox-inline", onchange: "document.getElementById('other-text').disabled = !this.checked;" %>
+                          <%= f.label :epipen_other_dosage, "Other Dosage", class: "control-label" %>
+                        </div>
+                        <div class="col-sm-8" style="padding-left:0;">
+                          <%= f.text_field :epipen_other_dosage_text, class: "input-sm form-control", disabled: true, id: "other-text" %>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <h4>Emergency Action Plan</h4>
+                    <%= f.text_area :emergency_action_plan, class: "form-control", rows: "18", style: "resize: none;" %>
+                  </div>
+                </div>
+
+                  <div class="col-sm-12" style="padding-bottom:10px;">
+                <h4>Special Alerts</h4>
+                <%= f.text_area :special_alerts, class: "form-control", rows: "5", style: "resize: none;" %>
+                </div>
+
+  <div class="actions">
+    <%= f.submit "Update Child" %>
+  </div>
+<% end %>
+
+
+ 

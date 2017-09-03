@@ -1,0 +1,18 @@
+<body class="landing-page">
+  <div class="login">
+    <h1>Welcome.</h1>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: {class: "login-fields"}) do |f| %>
+      <!-- fake fields are a workaround for chrome autofill getting the wrong fields, they are hidden -->
+      <input class="fake-autofill-fields" type="email"/>
+      <input class="fake-autofill-fields" type="password"/>
+      <%= f.email_field :email, class: "form-control", placeholder: "Email", autocomplete: "off" %>
+      <%= f.password_field :password, class: "form-control", placeholder: "Password", autocomplete: "new-password" %>
+      <%= f.button "Login", type: "submit", class: "btn btn-block btn-primary" do %>
+        <span style="margin-right: 10px;" class="glyphicon glyphicon-log-in"></span>Login
+      <% end %>
+    <% end %>
+  </div>
+</body>
+
+
+

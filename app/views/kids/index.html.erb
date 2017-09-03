@@ -1,0 +1,2779 @@
+<nav class="navbar navbar-inverse" style="border-radius:0px;">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand reg-logo" href="#">
+        <img alt="Brand" src="/assets/brand.png">
+      </a>
+    </div>
+    <%= link_to('Logout', destroy_user_session_path, :method => :delete, style: "margin-right: 0px;", class: "btn btn-danger navbar-btn navbar-right") %>
+  </div>
+</nav>
+
+
+<div id="wrapper">
+
+  <div id="sidebar-wrapper">
+    <ul class="nav nav-pills nav-stacked text-center nav-pad">
+      <li>   
+        <img src="/assets/manageme_logo.png" style="max-width: 120%; max-height: 120%; margin-left: -12%">
+      </li>
+      <li>
+        <a href="#" id="dashboardBtn">Dashboard</a>
+      </li>
+      <li>
+        <a href="#" data-toggle="modal" data-target="#reports">Reports</a>
+      </li>
+      <li>
+        <a href="#" data-toggle="modal" data-target="#flipDates">Flip Dates</a>
+      </li>
+      <li>
+        <a href="#" id="absentBtn">Absenteeism</a>
+      </li>
+      <li>
+        <a href="#" id="teachersBtn">Teachers</a>
+      </li>
+      <li>
+        <a href="#" id="classroomBtn">Classrooms</a>
+      </li>
+      <% if current_user.admin? %>
+      <li>
+        <a href="/rationales">Recent Edits</a>
+      </li>
+      <% end %>
+      <li>
+        <a href="#" id="archivedBtn">Archived Students</a>
+      </li>
+      <li>
+        <a href="#" data-toggle="modal" data-target="#support">Support</a>
+      </li>
+    </ul>
+  </div>
+  <div id="page-content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <% if current_user.admin? %>
+            <h1 style="display: inline;">Welcome ADMINISTRATOR</h1>
+          <% else %>
+            <h1 style="display: inline;">Welcome to ManageMe Dashboard</h1>
+          <% end %>
+          
+          <a href="#" class="btn btn-success pull-right add-student-btn" data-toggle="modal" data-target="#addStudent">
+            <img src="/assets/add.png"><br>Add Student
+          </a>
+
+          <a href="#" class="add-teacher-btn btn btn-success pull-right" data-toggle="modal" data-target="#addTeacher">
+            <img src="/assets/add.png"><br>Add Teacher
+          </a>
+          <% if current_user.admin? %>
+            <a href="#" class="btn btn-success pull-right add-classroom-btn" data-toggle="modal" data-target="#addClassroom">
+              <img src="/assets/add.png"><br>Add Classroom
+            </a>
+          <% end %>          
+          <br>
+          <br>
+          <br>
+          <br>
+          <div class="panel panel-default" id="dashboard">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Student Dashboard</div>
+            
+            <!-- Table -->
+            <% if current_user.admin? %>
+            <table id="kid_table" class="header-admin table table-striped table-hover header-fixed">
+            <% else %>
+            <table id="kid_table" class="table table-striped table-hover header-fixed">
+            <% end %>
+              <thead> 
+                <tr>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <% if current_user.admin? %>
+                  <th>Daycare Location</th>
+                  <% end %>
+                  <th>Class Name</th>
+                  <th>Date of Birth</th>
+                  <th>Flip Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @kids.each do |kid| %>
+                <tr data-id="<%= kid.id %>">
+                  <td><%= kid.first_name %></td>
+                  <td><%= kid.last_name %></td>
+                  <% if current_user.admin? %>
+                    <td><%= kid.user.daycare_location %></td>
+                  <% end %>
+                  <td><%= kid.classroom ? kid.classroom.class_name : "N/A" %></td>
+                  <td><%= kid.dob.strftime("%B %d, %Y") %></td>
+                  <td><%= kid.flip_date_kid %></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default" id="archived">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Archived Students</div>
+
+            <!-- Table -->
+            <% if current_user.admin? %>
+            <table id="archived_table_admin" class="table table-striped table-hover header-fixed">
+            <% else %>
+            <table id="archived_table" class="table table-striped table-hover header-fixed">
+            <% end %>
+              <thead> 
+                <tr>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <% if current_user.admin? %>
+                  <th>Daycare Location</th>
+                  <% end %>
+                  <th>Student ID</th>
+                  <th>Date of Birth</th>
+                  <th>Discharge Date</th>
+                  <th style="color:white;"> /</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @archived_kids.each do |kid| %>
+                <tr>
+                  <td><%= kid.first_name %></td>
+                  <td><%= kid.last_name %></td>
+                  <% if current_user.admin? %>
+                    <td><%= kid.user.daycare_location %></td>
+                  <% end %>
+                  <td><%= kid.student_id %><%= kid.student_number %></td>
+                  <td><%= kid.dob.strftime("%B %d, %Y") %></td>
+                  <td><%= kid.discharge_date.strftime("%B %d, %Y") %></td>
+                  <td><button type="button" class="btn btn-warning btn-xs" id="restoreBtn" data-toggle="modal" data-target="#restoreModal" data-id="<%= kid.id %>">Restore</button></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>   
+
+          <div class="panel panel-default" id="absents">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Absenteeism</div>
+
+            <!-- Table -->
+            <% if current_user.admin? %>
+            <table id="absent_table_admin" class="table table-striped table-hover header-fixed">
+            <% else %>
+            <table id="absent_table" class="table table-striped table-hover header-fixed">
+            <% end %>
+              <thead> 
+                <tr>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <% if current_user.admin? %>
+                  <th>Daycare Location</th>
+                  <% end %>
+                  <th>Class Name</th>
+                  <th>Absents This Year</th>
+                  <th>Remaining</th>
+                  <th>Full Fee Rate</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @absent_kids.each do |kid| %>
+                <% if kid.absents.where("absent_date > ?", Date.current.beginning_of_year).count > 0 %>
+                <tr data-id="<%=kid.id%>">
+                  <td><%= kid.first_name %></td>
+                  <td><%= kid.last_name %></td>
+                  <% if current_user.admin? %>
+                    <td><%= kid.user.daycare_location %></td>
+                  <% end %>
+                  <td><%= kid.classroom ? kid.classroom.class_name : "N/A" %></td>
+                  <td><%= kid.absents_count_so_far %></td>
+                  <td><%= kid.user.days_absence_threshold - kid.absents_count_so_far %></td>
+                  <td><%= kid.classroom ? kid.ff_rate_current : "N/A" %></td>
+                </tr>
+                <% end %>
+
+                <!-- Show Absents Modal -->
+                <div class="modal fade" id="showAbsentModal<%=kid.id %>" role="dialog">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4><%= kid.first_name %> <%= kid.last_name %> - Absences</h4>
+                      </div>
+                      <div class="modal-body">  
+                        <ol>
+                          <% kid.absents.each do |absent| %>
+                            <% if absent.absent_date.strftime("%Y") == Date.current.year.to_s %>
+                              <li><%= absent.absent_date.strftime("%B %d, %Y") %> - 
+                              <em><%= link_to 'Delete', absent, method: :delete, data: { confirm: 'Are you sure?' }, style: "color:red;" %></em></li>
+                            <% end %>
+                          <% end %>          
+                        </ol>
+                        <h4>Letters</h4>
+                        <ul>
+                          <% if kid.warning_15_days_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_15_absent_day_letter">15 Absent Day Warning Letter</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_15_absent_day_letter">15 Absent Day Warning Letter</a></li>
+                          <% end %>
+                          <% if kid.join_after_july_1st_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_after_july_1st_letter">Joining After July 1st Letter</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_after_july_1st_letter">Joining After July 1st Letter</a></li>
+                          <% end %>
+                          <% if kid.warning_20_consecutive_days_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_20_consecutive_absent_day_letter">20 Consecutive Absent Day Notice</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_20_consecutive_absent_day_letter">20 Consecutive Absent Day Notice</a></li>
+                          <% end %>
+                          <% if kid.warning_25_days_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_25_absent_day_letter">25 Absent Day Warning Letter</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_25_absent_day_letter">25 Absent Day Warning Letter</a></li>
+                          <% end %>
+                          <% if kid.warning_33_days_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_33_absent_day_letter">33 Absent Day Warning Letter</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_33_absent_day_letter">33 Absent Day Warning Letter</a></li>
+                          <% end %>
+                          <% if kid.warning_35_days_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_35_absent_day_letter">35 Absent Day Notice</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_35_absent_day_letter">35 Absent Day Notice</a></li>
+                          <% end %>
+                          <% if kid.review_letter_issued? %>
+                            <li><a href="kids/<%=kid.id%>/print_student_review_letter">Student Details Review Letter</a> - 
+                                <span style="color:green">ISSUED</span></li>
+                          <% else %>
+                            <li><a href="kids/<%=kid.id%>/print_student_review_letter">Student Details Review Letter</a></li>
+                          <% end %>
+                        </ul>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% end %>
+              </tbody>
+            </table>
+          </div>  
+
+          <div class="panel panel-default" id="teachers">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Teacher List</div>
+
+            <!-- Table -->
+            <% if current_user.admin? %>
+            <table id="teacher_table" class="header-admin table table-striped table-hover header-fixed">
+            <% else %>
+            <table id="teacher_table" class="table table-striped table-hover header-fixed">
+            <% end %>
+              <thead> 
+                <tr>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <% if current_user.admin? %>
+                  <th>Daycare Location</th>
+                  <% end %>
+                  <th>Title</th>
+                  <th>Class Size</th>
+                  <th>Class Name</th>
+                </tr>
+              </thead>
+
+              <tbody id="#teacherBody">
+                <% @teachers.each do |teacher| %>
+                <tr data-id="<%= teacher.id %>">
+                  <td><%= teacher.first_name %></td>
+                  <td><%= teacher.last_name %></td>
+                  <% if current_user.admin? %>
+                    <td><%= teacher.user.daycare_location %></td>
+                  <% end %>
+                  <td><%= teacher.title %></td>
+                  <% if teacher.classroom == nil %>
+                  <td>N/A</td><td>N/A</td>
+                  <% else %>
+                  <td><%= teacher.classroom.kids.where(discharge_date: nil).count %> / <%= teacher.classroom.capacity %></td>
+                  <td><%= teacher.classroom.class_name %></td>
+                  <% end %>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>   
+
+          <div class="panel panel-default" id="classroom">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Classroom List</div>
+
+            <!-- Table -->
+            <% if current_user.admin? %>
+            <table id="classroom_table_admin" class="table table-striped table-hover header-fixed">
+            <% else %>
+            <table id="classroom_table" class="table table-striped table-hover header-fixed">
+            <% end %>
+              <thead> 
+                <tr>
+                  <th>Class Name</th>
+                  <% if current_user.admin? %>
+                  <th>Daycare Location</th>
+                  <% end %>
+                  <th>Capacity</th>
+                  <th>Full Fee</th>
+                  <th>Subsidized</th>
+                  <th># of Teachers</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @classrooms.each do |classroom| %>
+                <tr data-id="<%= classroom.id %>">
+                  <td><%= classroom.class_name %></td>
+                  <% if current_user.admin? %>
+                    <td><%= classroom.user.daycare_location %></td>
+                  <% end %>
+                  <td><%= classroom.kids.where(discharge_date: nil).count %>  /  <%= classroom.capacity %></td>
+                  <td><%= classroom.kids.where(discharge_date: nil, student_id: "FF").count %></td>
+                  <td><%= classroom.kids.where(discharge_date: nil, student_id: "CS").count %></td>
+                  <td><%= classroom.teachers.count %></td>
+                  <% if classroom.kids.where(discharge_date: nil).count >= classroom.capacity %>
+                  <td style="color: red;">FULL</td>
+                  <% else %>
+                  <td style="color: green;">AVAILABLE</td>
+                  <% end %>
+                </tr>
+
+                <!-- Show Class Modal -->
+                <div class="modal fade" id="showClassModal<%=classroom.id %>" role="dialog">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4><%= classroom.class_name %></h4>
+                      </div>
+                      <div class="modal-body">  
+                        <%= render 'classrooms/classmodal', classroom: classroom %>
+                      </div>
+                      <div class="modal-footer">
+                      <% if Date.today.next_week.beginning_of_week.advance(days: 4).month != Date.today.next_week.beginning_of_week.month %>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button class="btn btn-warning" onclick="window.location.href='/classrooms/<%=classroom.id%>/edit';">Edit</button>
+                        <div class="btn-group" role="group">
+                          <%= button_to 'Print 1', { controller: "kids", action: "print_attendance", id: classroom }, class: "btn btn-primary"%>
+                          <%= button_to 'Print 2', { controller: "kids", action: "print_attendance_two", id: classroom }, class: "btn btn-primary"%>
+                        </div>
+                      <% else %>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <div style="float:right; margin-left: 7px;">
+                          <%= button_to 'Print', { controller: "kids", action: "print_attendance", id: classroom }, class: "btn btn-primary"%>
+                        </div>
+                        <button class="btn btn-warning" onclick="window.location.href='/classrooms/<%=classroom.id%>/edit';">Edit</button>
+                      <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <% end %>
+              </tbody>
+            </table>
+          </div>  
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Absent Date Modal -->
+<div class="modal fade" id="absentDateModal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_for(Absent.new, :html => {class: "form-horizontal", autocomplete: "off" }) do |f| %>
+      <div class="modal-header">
+        <a type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
+        <h4>Absent Date</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <%= f.label :absent_date, "Date", class: "col-lg-2 control-label" %>
+          <div class="col-lg-10">
+            <%= f.text_field :absent_date, class: "form-control", id:"absentSelect", placeholder: "yyyy-mm-dd", required: true %>
+          </div>
+        </div>
+        <%= f.text_field :kid_id, id:"kid_id_absent", style: "display:none" %>
+        </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <%= f.submit 'Submit', class: 'btn btn-primary' %>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Show Teacher Modal -->
+<div class="modal fade" id="showTeacherModal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 id="showTeacherHeader"></h4>
+      </div>
+      <div class="modal-body">
+      <form class="form-horizontal container-fluid" >
+        
+        <div class="form-group">
+          <label class="col-lg-3 control-label">Full Name:</label>
+          <div class="col-lg-9">
+            <p id="teacher_name_show" class="show_kid_static"></p>
+          </div>
+        </div>
+        <div class="form-group">
+        <label class="col-lg-3 control-label">Title:</label>
+          <div class="col-lg-9">
+            <p id="teacher_title_show" class="show_kid_static"></p>
+          </div>
+        </div>
+        <div class="form-group">
+        <label class="col-lg-3 control-label">Employee ID:</label>
+          <div class="col-lg-9">
+            <p id="teacher_emp_id_show" class="show_kid_static"></p>
+          </div>
+        </div>
+        <div class="form-group">
+        <label class="col-lg-3 control-label">Phone:</label>
+          <div class="col-lg-9">
+            <p id="teacher_phone_show" class="show_kid_static"></p>
+          </div>
+        </div>
+        <div class="form-group">
+        <label class="col-lg-3 control-label">Alternate Phone:</label>
+          <div class="col-lg-3">
+            <p id="teacher_alt_phone_show" class="show_kid_static"></p>
+          </div>
+        </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" id="editTeacherBtn">Edit</button>
+        <%= link_to 'Delete', "#", id: "deleteTeacherBtn", data: { confirm: 'Are you sure you want to delete this teacher?' }, :class => 'btn btn-danger' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Teacher Modal -->
+<div class="modal fade" id="addTeacher" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= render 'teachers/addmodal', teacher: Teacher.new %>
+    </div>
+  </div>
+</div>
+
+<!-- Add Classroom Modal -->
+<div class="modal fade" id="addClassroom" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= render 'classrooms/addmodal', classroom: Classroom.new %>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Confirmation Modal -->
+<div class="modal fade" id="editConfirmation" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_for(Rationale.new, :html => {class: "form-horizontal", autocomplete: "off" }) do |f| %>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4>WARNING: Edit Confirmation</h4>
+      </div>
+      <div class="modal-body">
+        Please state your name and rationale for making edits to this profile.
+        <br><br>
+
+        <div class="form-group">
+          <%= f.label :full_name, "Full Name", class: "col-lg-2 control-label" %>
+          <div class="col-lg-10">
+            <%= f.text_field :full_name, class: "form-control disabledEdit", id: "full_name_editor", autofocus: true  %>
+          </div>
+        </div>
+        <!-- hidden -->     <%= f.text_field :child_name, id: "child_name", style: "display:none;" %>
+        <div class="form-group">
+          <%= f.label :rational, "Rationale", class: "col-lg-2 control-label" %>
+          <div class="col-lg-10">
+            <%= f.text_area :rational, class: "form-control disabledEdit", id: "rational_editor", rows: "5", style: "resize: none;" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" id="editStudentConfirmBtn" disabled="disabled">Edit</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Flip Dates Modal -->
+<div class="modal fade" id="flipDates" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document" style="width:640px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Flip Dates</h4>
+      </div>
+      <div class="modal-body">
+        <h4>Underage/Overage Flip Dates</h4>
+
+        <table class="table table-condensed">
+        <thead> 
+          <tr>
+            <th>Student Name</th>
+            <% if current_user.admin? %>
+              <th>Daycare Location</th>
+            <% end %>
+            <th>Current Age Group</th>
+            <th>Flip Date</th>
+            <th>Days Past/Early</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        <% @kids.reorder('dob DESC').each do |kid| %>
+        <% if kid.classroom == nil %>
+        <% elsif !(kid.classroom.end_range == 72 || kid.classroom.end_range == 120) && (kid.flip_date_kid_query <= Date.today) %>
+          <tr>
+            <td><%= kid.first_name %> <%= kid.last_name %></td>
+            <% if current_user.admin? %>
+              <td><%= kid.user.daycare_location %></td>
+            <% end %>
+            <td><%= kid.classroom.class_name %></td>
+            <td><%= kid.flip_date_kid %></td>
+            <td style="color:red;"><%= (Date.today - kid.flip_date_kid_query).to_i %></td>
+          </tr>
+        <% elsif kid.classroom.start_range != 0 && (kid.upcoming_flip_date_calc_start > Date.today) %>
+          <tr style="color:blue;">
+            <td><%= kid.first_name %> <%= kid.last_name %></td>
+            <% if current_user.admin? %>
+              <td><%= kid.user.daycare_location %></td>
+            <% end %>
+            <td><%= kid.classroom.class_name %></td>
+            <td><%= kid.upcoming_flip_date_calc_start.strftime("%B %d, %Y") %></td>
+            <td><%= (kid.upcoming_flip_date_calc_start - Date.today).to_i %></td>
+          </tr>
+          <%end%>
+          <% end %>
+        </tbody>
+        </table>
+
+        <h4>Upcoming Flip Dates</h4>
+        
+        
+        <table class="table table-condensed">
+        <thead> 
+          <tr>
+            <th>Student Name</th>
+            <% if current_user.admin? %>
+              <th>Daycare Location</th>
+            <% end %>
+            <th>Current Age Group</th>
+            <th>Flip Date</th>
+            <th>Remaining Days</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        <% @kids.order('dob DESC').each do |kid| %>
+        <% if kid.upcoming_flip_date %>
+          <tr>
+            <td><%= kid.first_name %> <%= kid.last_name %></td>
+            <% if current_user.admin? %>
+              <td><%= kid.user.daycare_location %></td>
+            <% end %>
+            <td><%= kid.classroom.class_name %></td>
+            <td><%= kid.flip_date_kid %></td>
+            <td><%= (kid.flip_date_kid_query - Date.today).to_i %></td>
+          </tr>
+          <% end %>
+          <% end %>
+        </tbody>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success">Update</button>
+      </div>
+    </div>
+  </div>
+</div> 
+
+<!-- Restore Student Modal --> 
+<div class="modal fade" id="restoreModal">
+ <div class="modal-dialog">
+      <div class="modal-content">
+  <div class="modal-header">
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4>Restore Student</h4>
+  </div>
+  <div class="modal-body" id="restoreBody">
+    
+  </div>
+  <div class="modal-footer">
+  <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <%= link_to 'Restore', "#", id: "confirm_restoreBtn", :class => 'btn btn-primary' %>
+  </div>
+  </div>
+  </div>
+</div>
+
+
+ <!-- Reports Modal -->
+<div class="modal fade" id="reports" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document" style="width:640px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Reports</h4>
+      </div>
+      <div class="modal-body">
+        <h4>Print Reports</h4>
+        <div class="row" style="margin-left:3px; margin-bottom:10px;">
+        <div style="float:left; margin-right:7px;">
+          <%= button_to 'Student List', { controller: 'kids', action: 'print_student_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+         <div style="float:left; margin-right:7px;">
+          <%= button_to 'Teacher List', { controller: 'kids', action: 'print_teacher_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Upcoming Flips', { controller: 'kids', action: 'print_upcoming_flips_report' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+        </div>
+        <div class="row" style="margin-left:3px; margin-bottom:10px;"  >
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Allergies', { controller: 'kids', action: 'print_allergy_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Food Restrictions', { controller: 'kids', action: 'print_food_restrictions_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Special Alerts', { controller: 'kids', action: 'print_special_alerts_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+        </div>
+        <div class="row" style="margin-left:3px; margin-bottom:10px;">
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Class Summary', { controller: 'kids', action: 'print_class_summary' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Special Medical Alerts', { controller: 'kids', action: 'print_special_med_alerts_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Email List', { controller: 'kids', action: 'print_email_list' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+        </div>
+        <br>
+        <h4>Forms & Letters</h4>
+        <div class="row" style="margin-left:3px; margin-bottom:10px;">
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Welcome Package', { controller: 'kids', action: 'print_welcome_package' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Infant WP', { controller: 'kids', action: 'print_infant_wp_package' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+          <div style="float:left; margin-right:7px;">
+            <%= button_to 'Anaphylactic Form', { controller: 'kids', action: 'print_anaphylactic_form' }, class: "btn btn-info btn-lg", disabled: true%>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- addStudent modal -->
+<div class="modal fade" id="addStudent" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Add Student</h4>
+      </div>
+      <%= form_for(Kid.new, :html => {class: "form-horizontal container-fluid", id: "FormOne", autocomplete: "off" }) do |f| %>
+      <div class="modal-body row">
+        <div class="tabbable">
+          <ul class="nav nav-tabs" data-tabs="tabs">
+            <li id="tab1" class="active mytabs">
+              <a href="#One" data-toggle="tab">General</a>
+            </li>
+            <li id="tab2" class="mytabs">
+              <a href="#Two" data-toggle="tab">Guardian Information</a>
+            </li>
+            <li id="tab3" class="mytabs">
+              <a href="#Three" data-toggle="tab">Emergency Information</a>
+            </li>
+            <li id="tab4" class="mytabs">
+              <a href="#Four" data-toggle="tab">Medical Information</a>
+            </li>
+            <li id="tab5" class="mytabs">
+              <a href="#Five" data-toggle="tab">Anaphylaxis</a>
+            </li>
+            <li id="tab6" class="mytabs">
+              <a href="#Six" data-toggle="tab">Special Alerts</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+
+            <div class="tab-pane active" id="One">
+              <br>
+              <div class="form-group">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <%= f.label :first_name, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :first_name, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :last_name, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :last_name, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :dob, "Date of Birth", class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.date_field :dob, class: "form-control", required: true %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :gender, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <div class="row">
+
+                        <div class="col-sm-4">
+                          <label class="radio-inline">
+                            <%= f.radio_button :gender, "Male" %>Male
+                          </label>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <label class="radio-inline">
+                            <%= f.radio_button :gender, "Female" %>Female
+                          </label>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <label class="radio-inline">
+                            <%= f.radio_button :gender, "Other" %>Other
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div> <!-- /.form-group -->
+
+                  <div class="form-group">
+                    <%= f.label :religion, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :religion, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :admission_date, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.date_field :admission_date, class: "form-control", value: Time.now.strftime("%Y-%m-%d") %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :bus_route, "Bus Route", class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :bus_route, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <h4>Address</h4>
+
+                  <div class="form-group">
+                    <%= f.label :street_addr, "Street Address", class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :street_addr, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :city, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.text_field :city, class: "form-control" %>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :province, class: "col-sm-4 control-label" %>
+                    <div class="col-sm-8">
+                      <%= f.select :province, options_for_select(["Alberta", "British Columia", "Manitoba", 
+                        "New Brunswick", "Newfoundland", "Nova Scotia", "Northwest Territories", "Nunavut", "Ontario",
+                        "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"], "Ontario"), {}, 
+                        {class: "form-control"} %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :postal_code, class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :postal_code, class: "form-control", style: "text-transform: uppercase;" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :phone, class: "form-control" %>
+                      </div>
+                    </div>
+                    <h4>Permissions</h4>
+                    <div class="col-sm-6">
+
+                      <div class="form-group">
+                        <%= f.label :sunscreen, class: "col-sm-8 control-label" %>
+                        <div class="col-sm-4">
+                          <%= f.check_box :sunscreen, class: "checkbox", checked: true %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <%= f.label :diaper_cream, "Diaper Cream/Ointment", class: "col-sm-8 control-label" %>
+                        <div class="col-sm-4">
+                          <%= f.check_box :diaper_cream, class: "checkbox", checked: true %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <%= f.label :hand_sanitizer, "Hand Sanitizer", class: "col-sm-8 control-label" %>
+                        <div class="col-sm-4">
+                          <%= f.check_box :hand_sanitizer, class: "checkbox", checked: true %>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-sm-6">
+
+                      <div class="form-group">
+                        <%= f.label :face_painting, "Face Painting", class: "col-sm-8 control-label" %>
+                        <div class="col-sm-4">
+                          <%= f.check_box :face_painting, class: "checkbox", checked: true %>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <%= f.label :vidpic_taking, "Video/Picture Taking", class: "col-sm-8 control-label" %>
+                        <div class="col-sm-4">
+                          <%= f.check_box :vidpic_taking, class: "checkbox", checked: true %>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+
+                    <div class="form-group">
+                      <%= f.label :student_id, "Student ID", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.select :student_id, options_for_select(["CS", "FF"]), {include_blank: true}, 
+                        {class: "form-control" } %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :student_number, "Student Number", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :student_number, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :classroom_id, "Class (Age Group)", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.select :classroom_id, options_from_collection_for_select(@classrooms, 'id', 
+                          'class_name'), {include_blank: "N/A"}, {class: "form-control" } %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :ba, "B&A", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.check_box :ba, class: "checkbox" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :school_name, "School Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :school_name, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :school_phone, "School Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :school_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :bus_driver, "Bus Driver", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                       <%= f.text_field :bus_driver, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <h4>Notes</h4>
+
+                    <div class="form-group">
+                      <div class="col-sm-12">
+                        <%= f.text_area :notes, class: "form-control", rows: "20", style: "resize: none;" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Two">
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Parent/Guardian #1</h4>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_name, "Full Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_name, class: "form-control", autofocus: true %>
+
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_relationship, "Relationship", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_relationship, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_home_phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_home_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_mobile_phone, "Mobile Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_mobile_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_bus_phone, "Business Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_bus_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0">
+                      <%= f.label :gaurdian_one_email, "Email", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_email, class: "form-control" %>
+                      </div>
+                    </div>
+                    <%= f.check_box :gaurdian_one_email_corr, class: "checkbox checkbox-inline" %>
+                    <%= f.label :gaurdian_one_email_corr, "Check box to receive correspondence through email", class: "control-label" %>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_employer, "Employer", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_employer, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_employer_addr, "Employer Address", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_one_employer_addr, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_one_notes, "Notes", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_area :gaurdian_one_notes, class: "form-control", rows: "5", style: "resize: none;" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <h4>Parent/Gaurdian #2</h4>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_name, "Full Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_name, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_relationship, "Relationship", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_relationship, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_home_phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_home_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_mobile_phone, "Mobile Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_mobile_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_bus_phone, "Business Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_bus_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0">
+                      <%= f.label :gaurdian_two_email, "Email", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_email, class: "form-control" %>
+                      </div>
+                    </div>
+                    <%= f.check_box :gaurdian_two_email_corr, class: "checkbox checkbox-inline" %>
+                    <%= f.label :gaurdian_two_email_corr, "Check box to receive correspondence through email", class: "control-label" %>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_employer, "Employer", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_employer, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_employer_addr, "Employer Address", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :gaurdian_two_employer_addr, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :gaurdian_two_notes, "Notes", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_area :gaurdian_two_notes, class: "form-control", rows: "5", style: "resize: none;" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Three">
+
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Emergency Contact #1</h4>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_one_name, "Full Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_one_name, class: "form-control", autofocus: true %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_one_phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_one_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_one_cell, "Cell Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_one_cell, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_one_work, "Work Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_one_work, class: "form-control"  %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_one_relationship, "Relationship", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_one_relationship, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <h4>Emergency Contact #2</h4>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_two_name, "Full Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_two_name, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_two_phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_two_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_two_cell, "Cell Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_two_cell, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_two_work, "Work Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_two_work, class: "form-control"  %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_two_relationship, "Relationship", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_two_relationship, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <h4>Emergency Contact #3</h4>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_three_name, "Full Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_three_name, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_three_phone, "Home Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_three_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_three_cell, "Cell Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_three_cell, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_three_work, "Work Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_three_work, class: "form-control"  %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :emerg_contact_three_relationship, "Relationship", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :emerg_contact_three_relationship, class: "form-control" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <h4>Physician Information</h4>
+
+                    <div class="form-group">
+                      <%= f.label :physician_name, "Physician Name", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_name, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_phone, "Phone", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_phone, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_fax, "Fax", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_fax, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_addr, "Address", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_addr, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_city, "City", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_city, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_postal_code, "Postal Code", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :physician_postal_code, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :ohip, "OHIP Number", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_field :ohip, class: "form-control" %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :physician_notes, "Notes", class: "col-sm-4 control-label" %>
+                      <div class="col-sm-8">
+                        <%= f.text_area :physician_notes, class: "form-control", rows: "6", style: "resize: none;" %>
+                      </div>
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Four">
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <h4>Allergies</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :allergy_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :allergy_description_one, class: "input-sm form-control" %>
+                          <%= f.label :allergy_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :allergy_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :allergy_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :allergy_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :allergy_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :allergy_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :allergy_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :allergy_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+                    <a id="allergy_add_one" data-toggle="collapse" data-target="#allergyTwo" aria-expanded="false" aria-controls="allergyTwo">+ Add</a>
+                    <div class="collapse" id="allergyTwo">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_two, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_two, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_two, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_two, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_two, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_two, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_two, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_two, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_two, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_two, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_two, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_two, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a id="allergy_add_two" data-toggle="collapse" data-target="#allergyThree" aria-expanded="false" aria-controls="allergyThree">+ Add</a>
+
+                    <div class="collapse" id="allergyThree">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_three, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_three, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_three, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_three, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_three, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_three, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_three, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_three, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_three, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_three, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_three, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_three, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+                    <a id="allergy_add_three" data-toggle="collapse" data-target="#allergyFour" aria-expanded="false" aria-controls="allergyFour">+ Add</a>
+                    <div class="collapse" id="allergyFour">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_four, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_four, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_four, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_four, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_four, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_four, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_four, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_four, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_four, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_four, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_four, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_four, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a id="allergy_add_four" data-toggle="collapse" data-target="#allergyFive" aria-expanded="false" aria-controls="allergyFive">+ Add</a>
+
+                    <div class="collapse" id="allergyFive">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :allergy_description_five, "Description", class: "control-label" %>    
+                            <%= f.text_field :allergy_description_five, class: "input-sm form-control" %>
+                            <%= f.label :allergy_symptoms_five, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :allergy_symptoms_five, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :allergy_medication_five, "Medication", class: "control-label" %>    
+                            <%= f.text_field :allergy_medication_five, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_expiry_five, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :allergy_expiry_five, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :allergy_epipen_five, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :allergy_epipen_five, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :allergy_actions_five, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :allergy_actions_five, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-12">
+
+                    <h4>Food Restrictions</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :food_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :food_description_one, class: "input-sm form-control" %>
+                          <%= f.label :food_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :food_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :food_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :food_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :food_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :food_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :food_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :food_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+                    <a id="food_add_one" data-toggle="collapse" data-target="#foodTwo" aria-expanded="false" aria-controls="foodTwo">+ Add</a>
+
+                    <div class="collapse" id="foodTwo">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_two, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_two, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_two, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_two, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_two, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_two, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_two, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_two, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_two, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_two, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_two, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_two, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a id="food_add_two" data-toggle="collapse" data-target="#foodThree" aria-expanded="false" aria-controls="foodThree">+ Add</a>
+
+                    <div class="collapse" id="foodThree">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_three, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_three, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_three, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_three, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_three, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_three, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_three, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_three, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_three, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_three, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_three, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_three, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a id="food_add_three" data-toggle="collapse" data-target="#foodFour" aria-expanded="false" aria-controls="foodFour">+ Add</a>
+
+                    <div class="collapse" id="foodFour">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_four, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_four, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_four, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_four, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_four, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_four, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_four, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_four, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_four, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_four, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_four, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_four, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a id="food_add_four" data-toggle="collapse" data-target="#foodFive" aria-expanded="false" aria-controls="foodFive">+ Add</a>
+
+                    <div class="collapse" id="foodFive">
+                      <div class="form-group">
+                        <div class="col-sm-9" style="padding-right: 0;">
+                          <div class="col-sm-6" style="padding-right: 0;">
+                            <%= f.label :food_description_five, "Description", class: "control-label" %>    
+                            <%= f.text_field :food_description_five, class: "input-sm form-control" %>
+                            <%= f.label :food_symptoms_five, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                            <%= f.text_field :food_symptoms_five, class: "input-sm form-control" %>
+                          </div>
+                          <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :food_medication_five, "Medication", class: "control-label" %>    
+                            <%= f.text_field :food_medication_five, class: "input-sm form-control" %>
+                            <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_expiry_five, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                              <%= f.date_field :food_expiry_five, class: "input-sm form-control" %>                      
+                            </div>
+                            <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                              <%= f.label :food_epipen_five, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                              <div style="padding-left: 33px;">
+                                <%= f.check_box :food_epipen_five, class: "checkbox" %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>   
+                        <div class="col-sm-3" style="padding-left: 1px;"">
+                          <%= f.label :food_actions_five, "Action Required", class: "control-label" %>    
+                          <%= f.text_area :food_actions_five, class: "form-control", rows: "3", style: "resize: none;" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h4>Special Medical Alerts</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <%= f.label :special_med_description_one, "Description", class: "control-label" %>    
+                          <%= f.text_field :special_med_description_one, class: "input-sm form-control" %>
+                          <%= f.label :special_med_symptoms_one, "Symptoms", class: "control-label", style: "padding-top: 0" %>    
+                          <%= f.text_field :special_med_symptoms_one, class: "input-sm form-control" %>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <%= f.label :special_med_medication_one, "Medication", class: "control-label" %>    
+                          <%= f.text_field :special_med_medication_one, class: "input-sm form-control" %>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :special_med_expiry_one, "Expiry Date", class: "control-label", style: "padding-top: 0"  %>    
+                            <%= f.date_field :special_med_expiry_one, class: "input-sm form-control" %>                      
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <%= f.label :special_med_epipen_one, "EpiPen", class: "control-label", style: "padding-top: 0; text-align: center; display: block;" %>
+                            <div style="padding-left: 33px;">
+                              <%= f.check_box :special_med_epipen_one, class: "checkbox" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <%= f.label :special_med_actions_one, "Action Required", class: "control-label" %>    
+                        <%= f.text_area :special_med_actions_one, class: "form-control", rows: "3", style: "resize: none;" %>
+                      </div>                 
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Five">
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Allergy Information</h4>
+                      <div class="col-sm-3">
+                        <%= f.check_box :nuts, class: "checkbox checkbox-inline" %>
+                        <%= f.label :nuts, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :fish, class: "checkbox checkbox-inline" %>
+                        <%= f.label :fish, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :eggs, class: "checkbox checkbox-inline" %>
+                        <%= f.label :eggs, class: "control-label" %>
+                        <br>
+                        <%= f.check_box :milk, class: "checkbox checkbox-inline" %>
+                        <%= f.label :milk, class: "control-label" %>
+                        <br>    
+                        <%= f.check_box :latex, class: "checkbox checkbox-inline" %>
+                        <%= f.label :latex, class: "control-label" %>                
+                      </div>
+                      <div class="col-sm-3" style="padding-left: 0; padding-right: 0;">
+                        <%= f.check_box :medication, class: "checkbox checkbox-inline", id: "medication-box", onchange: "document.getElementById('medication-text').disabled = !this.checked;" %>
+                        <%= f.label :medication, class: "control-label", style: "margin-bottom: 3px;" %>
+                        <br>
+                        <%= f.check_box :insect_sting, class: "checkbox checkbox-inline", id: "insect-sting-box", onchange: "document.getElementById('insect-sting-text').disabled = !this.checked;" %>
+                        <%= f.label :insect_sting, "Insect Sting", class: "control-label", style: "margin-bottom: 3px;" %>
+                        <br>
+                        <%= f.check_box :asthmatic, class: "checkbox checkbox-inline", id: "asthmatic-box", onchange: "document.getElementById('asthmatic-text').disabled = !this.checked; document.getElementById('asthmatic-expiry').disabled = !this.checked;" %>
+                        <%= f.label :asthmatic, class: "control-label" %>
+                      </div>
+                      <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                        <%= f.text_field :medication_text, class: "input-sm form-control", style: "margin-bottom: 3px;", disabled: true, id: "medication-text" %>
+                        <%= f.text_field :insect_sting_text, class: "input-sm form-control", style: "margin-bottom: 3px;", disabled: true, id: "insect-sting-text" %>   
+                        <%= f.text_field :asthmatic_medication, placeholder: "Medication Description", class: "input-sm form-control", disabled: true, id: "asthmatic-text" %>    
+                      </div>
+                      <div class="col-sm-9" style="padding-left: 0; padding-right: 0;">
+                        <%= f.label :asthmatic_medication_expiry, "Expiry Date", class: "control-label", style: "padding-top: 0;" %>    
+                        <%= f.date_field :asthmatic_medication_expiry, class: "input-sm form-control", disabled: true, id: "asthmatic-expiry" %>
+                      </div>
+                      <div class="col-sm-12" style="padding-left: 0;">
+                        <h4>EpiPen Information</h4>
+                        <div class="form-group">
+                        <%= f.label :epipen_expiry, "Expiry Date", class: "col-sm-4 control-label" %>
+                          <div class="col-sm-8">
+                            <%= f.date_field :epipen_expiry, class: "form-control" %>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <%= f.label :epipen_location, "Location", class: "col-sm-4 control-label" %>
+                          <div class="col-sm-8">
+                            <%= f.text_field :epipen_location, class: "form-control"%>
+                          </div>
+                        </div>
+                        <h4>EpiPen Dosage Information</h4>
+                        <div class="col-sm-6">
+                          <%= f.check_box :epipen_jr_15mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_jr_15mg, "EpiPen Jr 0.15mg", class: "control-label" %>
+                          <br>
+                          <%= f.check_box :epipen_twinject_15mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_twinject_15mg, "Twinject 0.15mg", class: "control-label"%>
+                         </div>
+                        <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                          <%= f.check_box :epipen_30mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_30mg, "EpiPen 0.30mg", class: "control-label" %>
+                          <br>
+                          <%= f.check_box :epipen_twinject_30mg, class: "checkbox checkbox-inline" %>
+                          <%= f.label :epipen_twinject_30mg, "Twinject 0.30mg", class: "control-label"%>
+                        </div>
+                        <div class="col-sm-4" style="padding-right:0;">
+                          <%= f.check_box :epipen_other_dosage, class: "checkbox checkbox-inline", onchange: "document.getElementById('other-text').disabled = !this.checked;" %>
+                          <%= f.label :epipen_other_dosage, "Other Dosage", class: "control-label" %>
+                        </div>
+                        <div class="col-sm-8" style="padding-left:0;">
+                          <%= f.text_field :epipen_other_dosage_text, class: "input-sm form-control", disabled: true, id: "other-text" %>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <h4>Emergency Action Plan</h4>
+                    <%= f.text_area :emergency_action_plan, class: "form-control", rows: "20", style: "resize: none;" %>
+                  </div>
+                </div>
+                </div>
+
+                <div class="tab-pane" id="Six">
+                  <h4>Special Alerts</h4>
+                  <%= f.text_area :special_alerts, class: "form-control", rows: "10", style: "resize: none;" %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
+          </div>
+          <%end%>
+        </div>
+      </div>
+    </div>
+
+
+<!-- Show Modal -->
+<div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="showTitle" style="display:inline;margin-right:15px;"></h4>
+         <button type="button" data-toggle="modal" data-target="#absentDateModal" data-dismiss="modal" class="btn btn-sm btn-warning">
+          <span class="glyphicon glyphicon-time"></span> Absent</button>
+      </div>
+      <form class="form-horizontal container-fluid" id="FormOne">
+            <div class="modal-body row">
+        <div class="tabbable">
+          <ul class="nav nav-tabs" data-tabs="tabs">
+            <li id="tab1" class="active mytabs">
+              <a href="#One-B" data-toggle="tab">General</a>
+            </li>
+            <li id="tab2" class="mytabs">
+              <a href="#Two-B" data-toggle="tab">Guardian Information</a>
+            </li>
+            <li id="tab3" class="mytabs">
+              <a href="#Three-B" data-toggle="tab">Emergency Information</a>
+            </li>
+            <li id="tab4" class="mytabs">
+              <a href="#Four-B" data-toggle="tab">Medical Information</a>
+            </li>
+            <li id="tab5" class="mytabs">
+              <a href="#Five-B" data-toggle="tab">Anaphylaxis</a>
+            </li>
+            <li id="tab6" class="mytabs">
+              <a href="#Six-B" data-toggle="tab">Special Alerts</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+
+            <div class="tab-pane active" id="One-B">
+              <br>
+              <h4>General</h4>
+              <div class="form-group">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">First Name:</label>
+                    <div class="col-sm-8">
+                      <p id="showKid_first_name" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Last Name:</label>
+                    <div class="col-sm-8">
+                      <p id="showKid_last_name" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Date of Birth:</label>
+                    <div class="col-sm-8">
+                      <p id="showKid_dob" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Gender:</label>
+                    <div class="col-sm-8">
+                      <p id="gender_show" class="show_kid_static"></p>
+                    </div>
+                  </div>
+          
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Religion:</label>
+                    <div class="col-sm-8">
+                      <p id="religion_show" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Admission Date:</label>
+                    <div class="col-sm-8">
+                      <p id="admission_date_show" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <br>
+
+                  <h4>Address</h4>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Street Address:</label>
+                    <div class="col-sm-8">
+                      <p id="street_addr_show" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">City:</label>
+                    <div class="col-sm-8">
+                      <p id="city_show" class="show_kid_static"></p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">Province:</label>
+                    <div class="col-sm-8">
+                      <p id="province_show" class="show_kid_static"></p>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Postal Code:</label>
+                      <div class="col-sm-8">
+                        <p id="postal_code_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Student ID:</label>
+                      <div class="col-sm-8">
+                        <p id="student_id_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Class/Age Group:</label>
+                      <div class="col-sm-8">
+                        <p id="age_group_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">B&A:</label>
+                      <div class="col-sm-8">
+                        <p id="ba_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">School Name:</label>
+                      <div class="col-sm-8">
+                        <p id="school_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">School Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="school_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Bus Route:</label>
+                      <div class="col-sm-8">
+                        <p id="bus_route_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Bus Driver:</label>
+                      <div class="col-sm-8">
+                        <p id="bus_driver_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <h4>Permissions</h4>
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label">Sunscreen:</label>
+                        <div class="col-sm-4">
+                          <p id="sunscreen_show" class="show_kid_static"></p>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label">Diaper Cream/Ointment:</label>
+                        <div class="col-sm-4">
+                          <p id="diaper_show" class="show_kid_static"></p>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label">Hand Sanitizer:</label>
+                        <div class="col-sm-4">
+                          <p id="hand_sanitizer_show" class="show_kid_static"></p>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-sm-6">
+
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label">Face Painting:</label>
+                        <div class="col-sm-4">
+                          <p id="face_painting_show" class="show_kid_static"></p>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label">Video/Picture Taking:</label>
+                        <div class="col-sm-4">
+                          <p id="vidpic_taking_show" class="show_kid_static"></p>
+                        </div>
+                      </div>
+
+                    </div>
+
+                      <div class="col-sm-12" style="padding-left: 0">
+
+                    <h4>Notes</h4>
+
+                    <div class="form-group">
+                      <div class="col-sm-12">
+                        <p id="notes_show" class="show_kid_static"></p>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Two-B">
+              <div class="form-group">
+              <br>
+                  <div class="col-sm-6">
+                    <h4>Parent/Guardian #1</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Full Name:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Relationship:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_relationship_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_home_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Mobile Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_mobile_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Business Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_bus_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Email:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_email_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                    <p><b><span id="email_corr_one_show"></span></b> send correspondence through email</p>
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Employer:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_employer_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Employer Address:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_employer_addr_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Notes:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_one_notes_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <h4>Parent/Guardian #2</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Full Name:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Relationship:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_relationship_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_home_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Mobile Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_mobile_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Business Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_bus_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Email:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_email_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                    <p><b><span id="email_corr_two_show"></span></b> send correspondence through email</p>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Employer:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_employer_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Employer Address:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_employer_addr_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Notes:</label>
+                      <div class="col-sm-8">
+                        <p id="gaurdian_two_notes_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                
+              
+
+              <div class="tab-pane" id="Three-B">
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Emergency Contact #1</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Full Name:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_one_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_one_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Cell Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_one_cell_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Work Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_one_work_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Relationship:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_one_relationship_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <h4>Emergency Contact #2</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Full Name:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_two_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_two_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Cell Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_two_cell_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Work Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_two_work_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Relationship:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_two_relationship_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <h4>Emergency Contact #3</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Full Name:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_three_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Home Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_three_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Cell Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_three_cell_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Work Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_three_work_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Relationship:</label>
+                      <div class="col-sm-8">
+                        <p id="emerg_contact_three_relationship_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <h4>Physician Information</h4>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Physician Name:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_name_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Phone:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_phone_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Fax:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_fax_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Address:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_addr_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">City:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_city_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Postal Code:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_postal_code_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">OHIP Number:</label>
+                      <div class="col-sm-8">
+                        <p id="ohip_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="col-sm-4 control-label">Notes:</label>
+                      <div class="col-sm-8">
+                        <p id="physician_notes_show" class="show_kid_static"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                
+                </div>
+              </div>
+
+              <div class="tab-pane" id="Four-B">
+              <div class="form-group">
+                  <div class="col-sm-12">
+                    <h4>Allergies</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="allergy_desc_one_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="allergy_symptoms_one_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="allergy_medication_one_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="allergy_expiry_one_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="allergy_epipen_one_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="allergy_action_one_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="allergy_two">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="allergy_desc_two_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="allergy_symptoms_two_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="allergy_medication_two_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="allergy_expiry_two_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="allergy_epipen_two_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="allergy_action_two_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="allergy_three">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="allergy_desc_three_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="allergy_symptoms_three_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="allergy_medication_three_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="allergy_expiry_three_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="allergy_epipen_three_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="allergy_action_three_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="allergy_four">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="allergy_desc_four_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="allergy_symptoms_four_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="allergy_medication_four_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="allergy_expiry_four_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="allergy_epipen_four_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="allergy_action_four_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="allergy_five">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="allergy_desc_five_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="allergy_symptoms_five_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="allergy_medication_five_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="allergy_expiry_five_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="allergy_epipen_five_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="allergy_action_five_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+
+                    <h4>Food Restrictions</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="food_desc_one_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="food_symptoms_one_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="food_medication_one_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="food_expiry_one_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="food_epipen_one_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="food_action_one_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="food_two">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="food_desc_two_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="food_symptoms_two_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="food_medication_two_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="food_expiry_two_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="food_epipen_two_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="food_action_two_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="food_three">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="food_desc_three_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="food_symptoms_three_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="food_medication_three_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="food_expiry_three_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="food_epipen_three_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="food_action_three_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="food_four">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="food_desc_four_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="food_symptoms_four_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="food_medication_four_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="food_expiry_four_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="food_epipen_four_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="food_action_four_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <div class="form-group" id="food_five">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="food_desc_five_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="food_symptoms_five_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="food_medication_five_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="food_expiry_five_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="food_epipen_five_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="food_action_five_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    <h4>Special Medical Alerts</h4>
+                    <div class="form-group">
+                      <div class="col-sm-9" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                          <label class="control-label">Description</label>    
+                          <input id="special_med_desc_one_show" class="input-sm form-control" readonly>
+                          <label class="control-label", style="padding-top: 0">Symptoms</label>    
+                          <input id="special_med_symptoms_one_show" class="input-sm form-control" readonly>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 1px; padding-right: 0px;">
+                          <label class="control-label">Medication</label>   
+                          <input id="special_med_medication_one_show" class="input-sm form-control" readonly>
+                          <div class="col-sm-9" style="padding-left: 1px; padding-right: 0px;">
+                            <label class="control-label", style="padding-top: 0">Expiry Date</label>    
+                            <input type="date" id="special_med_expiry_one_show" class="input-sm form-control" readonly>                     
+                          </div>
+                          <div class="col-sm-3" style="padding-left: 1px; padding-right: 0px;">
+                            <label class= "control-label" style="padding-top: 0; text-align: center; display: block;">EpiPen</label>
+                            <div style="padding-left: 33px;">
+                              <p id="special_med_epipen_one_show"></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>   
+                      <div class="col-sm-3" style="padding-left: 1px;"">
+                        <label class= "control-label">Action Required</label>    
+                        <textarea id="special_med_action_one_show" class="form-control" rows= "3" style= "resize: none;" readonly></textarea>
+                      </div>                 
+                    </div>
+
+                    </div>
+                    </div>
+
+              </div>
+
+              <div class="tab-pane" id="Five-B">
+                <br>
+                <div class="form-group">
+                  <div class="col-sm-6">
+                    <h4>Allergy Information</h4>
+                      <div class="col-sm-3">
+                        <input id="nuts_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Nuts</label>
+                        <br>
+                        <input id="fish_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Fish</label>
+                        <br>
+                        <input id="eggs_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Eggs</label>
+                        <br>
+                        <input id="milk_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Milk</label>
+                        <br>    
+                        <input id="latex_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Latex</label>               
+                      </div>
+                      <div class="col-sm-3" style="padding-left: 0; padding-right: 0;">
+                        <input id="medication_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label" style="margin-bottom: 3px;">Medication</label>
+                        <br>
+                        <input id="insect_sting_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label" style="margin-bottom: 3px;">Insect Sting</label>
+                        <br>
+                        <input id="asthmatic_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                        <label class="control-label">Asthmatic</label>
+                      </div>
+                      <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                        <input id="medication_text_show" class= "input-sm form-control" style="margin-bottom: 3px;" readonly>
+                        <input id="insect_sting_text_show" class= "input-sm form-control" style="margin-bottom: 3px;" readonly>
+                        <input id="asthmatic_medication_show" placeholder="Medication Description" class="input-sm form-control" readonly>    
+                      </div>
+                      <div class="col-sm-9" style="padding-left: 0; padding-right: 0;">
+                        <label class="control-label" style="padding-top: 0;">Expiry Date:</label>    
+                        <input type="date" id="asthmatic_medication_expiry_show" class= "input-sm form-control" readonly>
+                      </div>
+                      <div class="col-sm-12" style="padding-left: 0;">
+                        <h4>EpiPen Information</h4>
+                        <div class="form-group">
+                        <label class="col-sm-4 control-label">Expiry Date</label>
+                          <div class="col-sm-8">
+                            <input type="date" class="form-control" id="epipen_expiry_show" readonly>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class= "col-sm-4 control-label" >Location</label>
+                          <div class="col-sm-8">
+                            <input id="epipen_location_show" class="form-control" readonly>
+                          </div>
+                        </div>
+                        <h4>EpiPen Dosage Information</h4>
+                        <div class="col-sm-6">
+                          <input id="epipen_jr_15mg_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                          <label class="control-label">EpiPen Jr 0.15mg</label>
+                          <br>
+                          <input id="epipen_twinject_15mg_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                          <label class="control-label">Twinject 0.15mg</label>
+                         </div>
+                        <div class="col-sm-6" style="padding-left: 0; padding-right: 0;">
+                          <input id="epipen_30mg_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                          <label class="control-label">EpiPen 0.30mg</label>
+                          <br>
+                          <input id="epipen_twinject_30mg_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                          <label class="control-label">Twinject 0.30mg</label>
+                        </div>
+                        <div class="col-sm-4" style="padding-right:0;">
+                          <input id="epipen_other_dosage_show" type="checkbox" class="checkbox checkbox-inline" disabled>
+                          <label class="control-label">Other Dosage</label>
+                        </div>
+                        <div class="col-sm-8" style="padding-left:0;">
+                          <input id="epipen_other_dosage_text_show" class="input-sm form-control" readonly>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <h4>Emergency Action Plan</h4>
+                    <textarea id="emergency_action_plan_show" class="form-control" rows="20" style="resize: none;" readonly></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="tab-pane" id="Six-B">
+                <h4>Special Alerts</h4>    
+                <textarea id="special_alert_text_show" class="form-control" rows= "10" style= "resize: none;" readonly></textarea>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" id="editBtn" data-toggle="modal" data-target="#editConfirmation" class="btn btn-default" data-dismiss="modal">Edit</button>
+        <button type="button" href="#" id="discharge_student_btn" class="btn btn-danger">
+        Discharge</button>
+          <button type="button" href= "#" id="print_student_btn" class="btn btn-primary">Print</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Support Modal -->
+<div class="modal fade" id="support" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form class="form-horizontal">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4>Contact Support</h4>
+          </div>
+          <div class="modal-body">
+            For all support inquiries or to report a problem with the application please fill out the form below. If the matter is urgent, please state so in the message.
+            <br>
+            <br>
+            <div class="form-group">
+              <label for="contact-name" class="col-lg-2 control-label">Name</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="contact-name" placeholder="Full Name" disabled>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="contact-email" class="col-lg-2 control-label">Email</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="contact-email" placeholder="you@example.com" disabled>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="contact-message" class="col-lg-2 control-label">Message</label>
+              <div class="col-lg-10">
+                <textarea class="form-control" rows="8" style="resize:none;" disabled=""></textarea>
+              </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary" disabled>Send Message</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      </div>
+

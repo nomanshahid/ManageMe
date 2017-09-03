@@ -1,0 +1,18 @@
+<%= form_for(@kid) do |f| %>
+
+<h1>Discharge <%=@kid.first_name%> <%=@kid.last_name%></h1>
+  <br>
+  <div class="field">
+    <%= f.label :discharge_date, "Date" %>
+    <%= f.date_field :discharge_date, required: true, id: "dischargeSelect", placeholder: "yyyy-mm-dd"%>
+  </div>
+  <br>
+  <div class="actions">
+    <%= f.submit "Discharge Child" %>
+  </div>
+<% end %>
+
+<%= link_to 'Back', kids_path %>
+
+
+ 

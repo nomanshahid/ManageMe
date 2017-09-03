@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  class_name: MyString
+  class_desc: MyString
+  capacity: 1
+  num_teachers: 1
+  num_students: 1
+  status: MyString
+
+two:
+  class_name: MyString
+  class_desc: MyString
+  capacity: 1
+  num_teachers: 1
+  num_students: 1
+  status: MyString

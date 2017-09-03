@@ -1,0 +1,44 @@
+<%= form_for(@classroom) do |f| %>
+  <% if @classroom.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@classroom.errors.count, "error") %> prohibited this classroom from being saved:</h2>
+
+      <ul>
+      <% @classroom.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if @classroom.kids.where(discharge_date: nil).count > 0 or @classroom.teachers.count > 0 %>
+    <p>If you are trying to rename the classroom, please create a new classroom (from an Admin account) and then move all students and teachers to that classroom. Please note that classrooms cannot be renamed/deleted if there are still students and teachers assigned to the classroom, as it causes the system to crash. In order rename/delete this classroom please move all students and teachers first. </p><br>
+  <% elsif @classroom.kids.where(discharge_date: nil).count == 0 and @classroom.teachers.count == 0 and current_user.admin? == false %>
+    <p>Please login to an Admin account to delete this classroom.</p>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :class_name %><br>
+    <%= f.text_field :class_name, disabled: true %>
+  </div>
+  <div class="field">
+    <%= f.label :capacity %><br>
+    <%= f.number_field :capacity %>
+  </div>
+  <div class="field">
+    <%= f.label :start_range, "Start range (months)" %><br>
+    <%= f.number_field :start_range %>
+  </div>
+  <div class="field">
+    <%= f.label :end_range, "End range (months)" %><br>
+    <%= f.number_field :end_range %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+    <% if @classroom.kids.where(discharge_date: nil).count == 0 and @classroom.teachers.count == 0 and current_user.admin? %> 
+      <%= button_to 'Delete Class', @classroom, method: :delete, data: { confirm: 'Are you sure? This action cannot be undone.' }, class: "btn btn-danger" %>
+    <% else %>
+      <%= button_to 'Delete Class', @classroom, method: :delete, data: { confirm: 'Are you sure? This action cannot be undone.' }, class: "btn btn-danger", disabled: true  %>
+    <% end %>
+  </div>
+<% end %>

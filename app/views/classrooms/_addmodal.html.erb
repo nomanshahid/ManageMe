@@ -1,0 +1,51 @@
+<%= form_for(classroom, :html => {class: "form-horizontal", autocomplete: "off" }) do |f| %>
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h4>Add Classroom</h4>
+</div>
+<div class="modal-body">
+  <p>Please contact support to add Full Fee Rate if this is a distintively new age group.</p>
+  <br>
+  <div class="form-group">
+    <%= f.label :class_name, "Class Name", class: "col-lg-3 control-label" %>
+    <div class="col-lg-9">
+      <%= f.text_field :class_name, class: "form-control", autofocus: true %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :capacity, class: "col-lg-3 control-label" %>
+    <div class="col-lg-9">
+      <%= f.text_field :capacity, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :start_range, "Start Range (months)", class: "col-lg-3 control-label" %>
+    <div class="col-lg-9">
+      <%= f.text_field :start_range, class: "form-control"  %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :end_range, "End Range (months)", class: "col-lg-3 control-label" %>
+    <div class="col-lg-9">
+      <%= f.text_field :end_range, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :user_id, "Daycare Location", class: "col-lg-3 control-label" %>
+    <div class="col-lg-9">
+      <%= f.select :user_id, @users_wo_admin.all.collect {|a| [a.daycare_location, a.id]}, {}, {class: "form-control" } %>
+    </div>
+  </div>
+  
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+  <%= f.submit 'Submit', class: 'btn btn-primary' %>
+</div>
+
+<% end %>

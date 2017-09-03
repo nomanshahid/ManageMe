@@ -1,0 +1,15 @@
+<h4>Teachers Assigned</h4>
+         <ol>
+          <% classroom.teachers.each do |teacher| %>
+            <li><%= teacher.first_name %> <%= teacher.last_name %></li>
+          <% end %>          
+         </ol>
+        <br>
+        <h4>Students</h4>
+          <ol>
+          <% classroom.kids.where(discharge_date: nil).each do |kid| %>
+            <li><%= kid.first_name %> <%= kid.last_name %>
+	    <% if kid.ba? %> - B&A <% end %>
+		</li>
+          <% end %>          
+         </ol>  

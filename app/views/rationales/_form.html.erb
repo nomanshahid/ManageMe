@@ -1,0 +1,17 @@
+<%= form_for(@rationale) do |f| %>
+  <% if @rationale.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@rationale.errors.count, "error") %> prohibited this rationale from being saved:</h2>
+
+      <ul>
+      <% @rationale.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

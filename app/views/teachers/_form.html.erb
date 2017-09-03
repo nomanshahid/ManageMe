@@ -1,0 +1,45 @@
+<%= form_for(@teacher) do |f| %>
+  <% if @teacher.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@teacher.errors.count, "error") %> prohibited this teacher from being saved:</h2>
+
+      <ul>
+      <% @teacher.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :first_name, "First Name" %><br>
+    <%= f.text_field :first_name %>
+  </div>
+  <div class="field">
+    <%= f.label :last_name %><br>
+    <%= f.text_field :last_name %>
+  </div>
+  <div class="field">
+    <%= f.label :employee_id %><br>
+    <%= f.text_field :employee_id %>
+  </div>
+  <div class="field">
+    <%= f.label :phone %><br>
+    <%= f.text_field :phone %>
+  </div>
+  <div class="field">
+    <%= f.label :alt_phone, "Alternate Phone" %><br>
+    <%= f.text_field :alt_phone %>
+  </div>
+  <div class="field">
+    <%= f.label :title %>
+    <%= f.select :title, options_for_select(["RECE", "Student", "Assistant", "P/T Assistant", "Supply", "Kitchen Staff", "Supervisor"], selected: f.object.title), {include_blank: true} %>
+  </div>
+  <div class="field">
+      <%= f.label :classroom_id, "Class Name" %>
+      <%= f.select :classroom_id, options_from_collection_for_select(@classrooms, 'id', 'class_name', selected: f.object.classroom_id), include_blank: "N/A" %>
+    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
