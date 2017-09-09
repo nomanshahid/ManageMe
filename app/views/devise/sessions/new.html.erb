@@ -7,6 +7,9 @@
       <input class="fake-autofill-fields" type="password"/>
       <%= f.email_field :email, class: "form-control", placeholder: "Email", autocomplete: "off" %>
       <%= f.password_field :password, class: "form-control", placeholder: "Password", autocomplete: "new-password" %>
+      <p>Hint!</p>
+      <p>Email: user@manageme.com</p>
+      <p>Password: password</p>
       <%= f.button "Login", type: "submit", class: "btn btn-block btn-primary" do %>
         <span style="margin-right: 10px;" class="glyphicon glyphicon-log-in"></span>Login
       <% end %>
